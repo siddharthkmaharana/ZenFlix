@@ -44,8 +44,8 @@ export default function Profiles({ isDark }) {
                     >
                         <button className="flex flex-col items-center gap-3 group">
                             <div className={`w-24 h-24 md:w-36 md:h-36 rounded-xl flex items-center justify-center transition-all duration-300 ${isDark
-                                    ? "bg-gray-800 group-hover:bg-gray-700"
-                                    : "bg-gray-200 group-hover:bg-gray-300"
+                                ? "bg-gray-800 group-hover:bg-gray-700"
+                                : "bg-gray-200 group-hover:bg-gray-300"
                                 } group-hover:scale-110 group-hover:ring-4 group-hover:ring-white/20`}>
                                 <Plus className={`w-12 h-12 ${isDark ? "text-gray-400" : "text-gray-500"} group-hover:text-white transition-colors`} />
                             </div>
@@ -60,10 +60,10 @@ export default function Profiles({ isDark }) {
                 <button
                     onClick={() => setIsEditing(!isEditing)}
                     className={`px-8 py-3 rounded-lg font-medium transition-all duration-300 ${isEditing
-                            ? "bg-red-600 text-white hover:bg-red-700"
-                            : isDark
-                                ? "bg-transparent border border-gray-600 text-gray-400 hover:border-white hover:text-white"
-                                : "bg-transparent border border-gray-400 text-gray-600 hover:border-gray-900 hover:text-gray-900"
+                        ? "bg-red-600 text-white hover:bg-red-700"
+                        : isDark
+                            ? "bg-transparent border border-gray-600 text-gray-400 hover:border-white hover:text-white"
+                            : "bg-transparent border border-gray-400 text-gray-600 hover:border-gray-900 hover:text-gray-900"
                         }`}
                 >
                     <span className="flex items-center gap-2">

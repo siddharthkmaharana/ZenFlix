@@ -95,8 +95,8 @@ export default function MovieDetails({ isDark }) {
                                 <button
                                     onClick={() => setInWatchlist(!inWatchlist)}
                                     className={`flex items-center gap-2 px-6 py-3 md:py-4 font-bold rounded-lg transition-all duration-300 transform hover:scale-105 ${inWatchlist
-                                            ? "bg-red-600 text-white"
-                                            : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                                        ? "bg-red-600 text-white"
+                                        : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
                                         }`}
                                 >
                                     <Plus className={`w-5 h-5 ${inWatchlist ? "rotate-45" : ""} transition-transform`} />

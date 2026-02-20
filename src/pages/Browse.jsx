@@ -47,8 +47,8 @@ export default function Browse({ isDark }) {
                             <button
                                 onClick={() => setViewMode("grid")}
                                 className={`p-2 rounded-md transition-colors ${viewMode === "grid"
-                                        ? "bg-red-600 text-white"
-                                        : isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                                    ? "bg-red-600 text-white"
+                                    : isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"
                                     }`}
                             >
                                 <Grid className="w-5 h-5" />
@@ -56,8 +56,8 @@ export default function Browse({ isDark }) {
                             <button
                                 onClick={() => setViewMode("list")}
                                 className={`p-2 rounded-md transition-colors ${viewMode === "list"
-                                        ? "bg-red-600 text-white"
-                                        : isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                                    ? "bg-red-600 text-white"
+                                    : isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"
                                     }`}
                             >
                                 <List className="w-5 h-5" />
@@ -85,10 +85,10 @@ export default function Browse({ isDark }) {
                                     key={category}
                                     onClick={() => setSelectedCategory(category)}
                                     className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category
-                                            ? "bg-red-600 text-white"
-                                            : isDark
-                                                ? "bg-white/10 text-gray-300 hover:bg-white/20"
-                                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        ? "bg-red-600 text-white"
+                                        : isDark
+                                            ? "bg-white/10 text-gray-300 hover:bg-white/20"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                         }`}
                                 >
                                     {category}
@@ -104,8 +104,8 @@ export default function Browse({ isDark }) {
                         {/* Movies Grid */}
                         <div
                             className={`grid gap-4 md:gap-6 ${viewMode === "grid"
-                                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-                                    : "grid-cols-1"
+                                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                                : "grid-cols-1"
                                 }`}
                         >
                             {loading
