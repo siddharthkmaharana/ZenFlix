@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Play, Plus, ThumbsUp, Share2, Download, Star, ChevronLeft } from "lucide-react";
-import { createPageUrl } from "@/utils";
+import { createPageUrl } from "@/lib/utils";
 import MovieSection from "@/components/ui/MovieSection";
 import CastCard from "@/components/ui/CastCard";
 import { movieDetails, movies } from "@/components/data/movieData";
