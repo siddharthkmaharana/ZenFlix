@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Play, Plus, ThumbsUp, Share2, Download, Star, ChevronLeft } from "lucide-react";
 import { createPageUrl } from "@/lib/utils";
-import MovieSection from "@/components/ui/MovieSection";
-import CastCard from "@/components/ui/CastCard";
+import MovieSection from "@/components/MovieSection";
+import CastCard from "@/components/CastCard";
 import { tmdb } from "@/api/tmdb";
 
 export default function MovieDetails({ isDark }) {
@@ -17,48 +17,55 @@ export default function MovieDetails({ isDark }) {
     useEffect(() => {
         const fetchMovieData = async () => {
             if (!movieId) {
-                setError("No movie ID provided");
+                setError("No content ID provided");
                 setLoading(false);
                 return;
             }
 
             try {
                 setLoading(true);
-                const data = await tmdb.getDetails('movie', movieId);
+                const mediaType = searchParams.get("type") || 'movie';
+                const data = await tmdb.getDetails(mediaType, movieId);
 
                 // Transform API data to component format
                 setMovie({
                     id: data.id,
-                    title: data.title,
+                    title: data.title || data.name,
                     tagline: data.tagline,
                     description: data.overview,
                     backdrop: tmdb.getImageUrl(data.backdrop_path, 'original'),
                     poster: tmdb.getImageUrl(data.poster_path),
-                    imdbRating: data.vote_average.toFixed(1),
-                    rottenTomatoes: Math.round(data.vote_average * 10), // Simplification
-                    year: data.release_date?.split('-')[0],
+                    imdbRating: data.vote_average ? data.vote_average.toFixed(1) : 'N/A',
+                    rottenTomatoes: Math.round(data.vote_average * 10),
+                    year: (data.release_date || data.first_air_date || '').split('-')[0],
                     rating: data.adult ? 'R' : 'PG-13',
-                    duration: `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`,
-                    genres: data.genres.map(g => g.name),
-                    director: data.credits?.crew?.find(c => c.job === 'Director')?.name || 'N/A',
+                    duration: data.runtime
+                        ? `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`
+                        : data.number_of_seasons
+                            ? `${data.number_of_seasons} Season${data.number_of_seasons > 1 ? 's' : ''}`
+                            : 'N/A',
+                    genres: data.genres ? data.genres.map(g => g.name) : [],
+                    director: data.credits?.crew?.find(c => c.job === 'Director' || c.job === 'Executive Producer')?.name || 'N/A',
                     cast: data.credits?.cast?.slice(0, 10).map(a => ({
                         name: a.name,
                         role: a.character,
                         image: tmdb.getImageUrl(a.profile_path, 'w185')
                     })),
-                    similar: data.similar?.results || []
+                    similar: data.similar?.results?.map(m => ({ ...m, media_type: mediaType })) || []
                 });
+                setError(null);
                 setLoading(false);
             } catch (err) {
-                console.error("Error fetching movie details:", err);
-                setError("Failed to load movie details");
+                console.error("Error fetching details:", err);
+                const msg = err.response?.data?.status_message || err.message || "Unknown error";
+                setError(`Failed to load: ${msg}`);
                 setLoading(false);
             }
         };
 
         fetchMovieData();
         window.scrollTo(0, 0);
-    }, [movieId]);
+    }, [movieId, searchParams]);
 
     if (loading) {
         return (
@@ -70,8 +77,9 @@ export default function MovieDetails({ isDark }) {
 
     if (error || !movie) {
         return (
-            <div className={`min-h-screen flex flex-col items-center justify-center ${isDark ? "bg-black text-white" : "bg-white text-black"}`}>
-                <h1 className="text-2xl font-bold mb-4">{error || "Movie not found"}</h1>
+            <div className={`min-h-screen flex flex-col items-center justify-center p-4 text-center ${isDark ? "bg-black text-white" : "bg-white text-black"}`}>
+                <h1 className="text-2xl font-bold mb-4">Error loading movie</h1>
+                <p className="text-gray-500 mb-6 max-w-md">{error || "Movie details could not be found."}</p>
                 <Link to={createPageUrl("/")} className="px-6 py-2 bg-red-600 text-white rounded-lg">Go Home</Link>
             </div>
         );

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Filter, Grid, List } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
-import FilterSidebar from "@/components/ui/FilterSidebar";
-import SkeletonCard from "@/components/ui/SkeletonCard";
+import FilterSidebar from "@/components/FilterSidebar";
+import SkeletonCard from "@/components/SkeletonCard";
 import { categories, allMovies } from "@/components/data/movieData";
 
 export default function Browse({ isDark }) {

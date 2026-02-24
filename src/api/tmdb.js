@@ -6,32 +6,33 @@ const TMDB_READ_TOKEN = import.meta.env.VITE_TMDB_READ_TOKEN;
 
 const tmdbClient = axios.create({
     baseURL: TMDB_BASE_URL,
+    headers: {
+        Authorization: `Bearer ${TMDB_READ_TOKEN}`,
+        Accept: 'application/json'
+    }
 });
 
-// Interceptor to route requests through a proxy to bypass network restrictions
-tmdbClient.interceptors.request.use(async (config) => {
-    // Merge default params
-    const params = { ...config.params, api_key: TMDB_API_KEY };
-
-    // Construct the full target URL manually with query parameters
-    const queryString = new URLSearchParams(params).toString();
-    const targetUrl = `${TMDB_BASE_URL}${config.url}?${queryString}`;
-
-    // Use the proxy service
-    config.url = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-
-    // Clear baseURL and params so axios doesn't duplicate them
-    config.baseURL = '';
-    config.params = {};
-
+// Interceptor to add api_key to params as fallback and handle logging
+tmdbClient.interceptors.request.use((config) => {
+    config.params = {
+        ...config.params,
+        api_key: TMDB_API_KEY
+    };
     return config;
 });
 
-// Remove complex interceptors to ensure stability
+// Handle errors more gracefully
 tmdbClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        console.error("TMDB API Error:", error.response?.data?.status_message || error.message);
+        const errorMsg = error.response?.data?.status_message || error.message;
+        console.error("TMDB API Error:", errorMsg);
+
+        // If it's a network error, maybe the user needs a proxy, but let's log it clearly
+        if (error.message === "Network Error") {
+            console.warn("Direct connection failed. This might be due to network restrictions or CORS.");
+        }
+
         return Promise.reject(error);
     }
 );

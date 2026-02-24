@@ -22,7 +22,7 @@ export default function MovieCard({ movie, index = 0 }) {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <Link to={createPageUrl(`MovieDetails?id=${movie.id}`)}>
+            <Link to={createPageUrl(`MovieDetails?id=${movie.id}${movie.media_type ? `&type=${movie.media_type}` : ''}`)}>
                 <div
                     className={`relative aspect-[2/3] rounded-xl overflow-hidden transition-all duration-300 ease-in-out ${isHovered ? "scale-110 shadow-2xl shadow-black/80 ring-2 ring-white/20" : "scale-100"
                         }`}
