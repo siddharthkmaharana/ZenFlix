@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Play, Plus, ThumbsUp, Share2, Download, Star, ChevronLeft } from "lucide-react";
 import { createPageUrl } from "@/lib/utils";
-import MovieSection from "@/components/MovieSection";
-import CastCard from "@/components/CastCard";
+import MovieSection from "@/components/ui/MovieSection";
+import CastCard from "@/components/ui/CastCard";
 import { tmdb } from "@/api/tmdb";
 
 export default function MovieDetails({ isDark }) {

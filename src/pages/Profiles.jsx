@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Pencil } from "lucide-react";
-import ProfileCard from "@/components/ProfileCard";
+import ProfileCard from "@/components/ui/ProfileCard";
 import { profiles } from "@/components/data/movieData";
 
 export default function Profiles({ isDark }) {
