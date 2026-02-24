@@ -1,32 +1,91 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Play, Plus, ThumbsUp, Share2, Download, Star, ChevronLeft } from "lucide-react";
 import { createPageUrl } from "@/lib/utils";
 import MovieSection from "@/components/ui/MovieSection";
 import CastCard from "@/components/ui/CastCard";
-import { movieDetails, movies } from "@/components/data/movieData";
+import { tmdb } from "@/api/tmdb";
 
 export default function MovieDetails({ isDark }) {
-    const [loaded, setLoaded] = useState(false);
+    const [searchParams] = useSearchParams();
+    const movieId = searchParams.get("id");
+    const [movie, setMovie] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [inWatchlist, setInWatchlist] = useState(false);
 
     useEffect(() => {
-        const timer = setTimeout(() => setLoaded(true), 300);
-        return () => clearTimeout(timer);
-    }, []);
+        const fetchMovieData = async () => {
+            if (!movieId) {
+                setError("No movie ID provided");
+                setLoading(false);
+                return;
+            }
 
-    const movie = movieDetails;
+            try {
+                setLoading(true);
+                const data = await tmdb.getDetails('movie', movieId);
+
+                // Transform API data to component format
+                setMovie({
+                    id: data.id,
+                    title: data.title,
+                    tagline: data.tagline,
+                    description: data.overview,
+                    backdrop: tmdb.getImageUrl(data.backdrop_path, 'original'),
+                    poster: tmdb.getImageUrl(data.poster_path),
+                    imdbRating: data.vote_average.toFixed(1),
+                    rottenTomatoes: Math.round(data.vote_average * 10), // Simplification
+                    year: data.release_date?.split('-')[0],
+                    rating: data.adult ? 'R' : 'PG-13',
+                    duration: `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`,
+                    genres: data.genres.map(g => g.name),
+                    director: data.credits?.crew?.find(c => c.job === 'Director')?.name || 'N/A',
+                    cast: data.credits?.cast?.slice(0, 10).map(a => ({
+                        name: a.name,
+                        role: a.character,
+                        image: tmdb.getImageUrl(a.profile_path, 'w185')
+                    })),
+                    similar: data.similar?.results || []
+                });
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching movie details:", err);
+                setError("Failed to load movie details");
+                setLoading(false);
+            }
+        };
+
+        fetchMovieData();
+        window.scrollTo(0, 0);
+    }, [movieId]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-red-600"></div>
+            </div>
+        );
+    }
+
+    if (error || !movie) {
+        return (
+            <div className={`min-h-screen flex flex-col items-center justify-center ${isDark ? "bg-black text-white" : "bg-white text-black"}`}>
+                <h1 className="text-2xl font-bold mb-4">{error || "Movie not found"}</h1>
+                <Link to={createPageUrl("/")} className="px-6 py-2 bg-red-600 text-white rounded-lg">Go Home</Link>
+            </div>
+        );
+    }
 
     return (
-        <div className={isDark ? "" : "bg-gray-100"}>
+        <div className={isDark ? "bg-black text-white" : "bg-gray-100 text-black"}>
             {/* Hero Banner */}
             <div className="relative h-[70vh] md:h-[80vh] overflow-hidden">
                 <div className="absolute inset-0">
                     <img
                         src={movie.backdrop}
                         alt={movie.title}
-                        className={`w-full h-full object-cover transition-all duration-1000 ${loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
-                            }`}
+                        className="w-full h-full object-cover transition-all duration-1000 opacity-100 scale-100"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-black/30" />
@@ -34,7 +93,7 @@ export default function MovieDetails({ isDark }) {
 
                 {/* Back Button */}
                 <Link
-                    to={createPageUrl("Home")}
+                    to={createPageUrl("/")}
                     className="absolute top-24 left-4 md:left-12 z-20 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
@@ -44,10 +103,7 @@ export default function MovieDetails({ isDark }) {
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-12">
                     <div className="max-w-[1800px] mx-auto">
-                        <div
-                            className={`max-w-3xl transition-all duration-1000 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-                                }`}
-                        >
+                        <div className="max-w-3xl opacity-100 translate-y-0 transition-all duration-1000">
                             {/* Tagline */}
                             <p className="text-red-500 font-medium mb-2">{movie.tagline}</p>
 
@@ -64,7 +120,7 @@ export default function MovieDetails({ isDark }) {
                                 </div>
                                 <span className="text-gray-400">|</span>
                                 <span className="text-green-500 font-semibold">
-                                    {movie.rottenTomatoes}% Fresh
+                                    {movie.rottenTomatoes}% Match
                                 </span>
                                 <span className="text-gray-400">|</span>
                                 <span className="text-gray-300">{movie.year}</span>
@@ -76,7 +132,7 @@ export default function MovieDetails({ isDark }) {
 
                             {/* Genres */}
                             <div className="flex flex-wrap items-center gap-2 mb-6">
-                                {movie.genres.map((genre, i) => (
+                                {movie.genres.map((genre) => (
                                     <span
                                         key={genre}
                                         className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-sm text-gray-300"
@@ -162,21 +218,25 @@ export default function MovieDetails({ isDark }) {
                 </div>
 
                 {/* Cast Section */}
-                <div className="mt-16">
-                    <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>
-                        Cast & Crew
-                    </h2>
-                    <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                        {movie.cast.map((actor) => (
-                            <CastCard key={actor.name} actor={actor} />
-                        ))}
+                {movie.cast && movie.cast.length > 0 && (
+                    <div className="mt-16">
+                        <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-gray-900"}`}>
+                            Cast & Crew
+                        </h2>
+                        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+                            {movie.cast.map((actor) => (
+                                <CastCard key={actor.name} actor={actor} />
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Similar Movies */}
-            <MovieSection title="More Like This" movies={movies.trending} />
-            <MovieSection title="You May Also Like" movies={movies.scifi} />
+            {movie.similar && movie.similar.length > 0 && (
+                <MovieSection title="More Like This" movies={movie.similar} />
+            )}
         </div>
     );
 }
+
